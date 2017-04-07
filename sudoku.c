@@ -1,9 +1,9 @@
 #include "sudoku.h"
 
 #define pop(value) __builtin_popcount(value)
-#define LEFTMASK 0x1C0
-#define MIDMASK 0x38
-#define RIGHTMASK 0x7
+#define LEFTMASK 0x3F
+#define MIDMASK 0x1C7
+#define RIGHTMASK 0x1F8
 
 
 int setNode(struct Board *board, unsigned int node, int i, int j)
@@ -33,14 +33,22 @@ int getNode(struct Board *board, unsigned int *node, int i, int j)
 
 int solve(struct Board *board)
 {
-	int change;
+	printBoard(board, stdout);
+	printf("\n\n");
+
+	int i = 0;
 	do
 	{
-		change = mask(board);
-		change |= checkRows(board);
-		change |= checkCols(board);
-		change |= checkBoxes(board);
-	} while (change);
+		mask(board);
+		checkRows(board);
+		checkCols(board);
+		checkBoxes(board);
+
+		printBoard(board, stdout);
+		printf("\n\n");
+
+		i++;
+	} while (!checkDone(board) && i < 10);
 	return checkDone(board);
 }
 

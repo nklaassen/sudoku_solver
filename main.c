@@ -9,8 +9,8 @@ int main(int argc, char *argv[])
 
 	struct Board board;
 	parseInput(&board, stdin);
-	//solve(&board);
-	printBoard(&board, stdout);
+	solve(&board);
+	//printBoard(&board, stdout);
 
 	return 0;
 }

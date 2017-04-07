@@ -20,4 +20,6 @@ unsigned int getPosInCol(struct Board *board, unsigned int val, unsigned int col
 int maskBoxExceptRow(struct Board *board, int row, int box, unsigned int mask);
 int maskBoxExceptCol(struct Board *board, int col, int box, unsigned int mask);
 
+#include "io.h"
+
 #endif
