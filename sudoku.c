@@ -36,12 +36,40 @@ int solve(struct Board *board)
 	int change;
 	do
 	{
-		//change = mask(board);
-		change = checkRows(board);
+		change = mask(board);
+		change |= checkRows(board);
 		change |= checkCols(board);
 		change |= checkBoxes(board);
 	} while (change);
 	return checkDone(board);
+}
+
+int mask(struct Board *board)
+{
+	int row, col, i;
+	unsigned int mask;
+	for(row = 0; row < 9; row++)
+	{
+		for(col = 0; col < 9; col++)
+		{
+			if(1 == pop(board->node[row][col]))
+			{
+				mask = ~(board->node[row][col]);
+				for(i = 0; i < 9; i++)
+				{
+					if(i != row) {
+						board->node[i][col] &= ~board->node[row][col];
+					}
+					if(i != col) {
+						board->node[row][i] &= ~board->node[row][col];
+					}
+				}
+				maskBoxExceptRow(board, row, col / 3, mask);
+				maskBoxExceptCol(board, col, row / 3, mask);
+			}
+		}
+	}
+	return 0;
 }
 
 unsigned int getPosInRow(struct Board *board, unsigned int val, unsigned int row)
@@ -51,6 +79,17 @@ unsigned int getPosInRow(struct Board *board, unsigned int val, unsigned int row
 	for(col = 0; col < 9; col++)
 	{
 		pos |= ((board->node[row][col] >> val) & 1) << (8 - col);
+	}
+	return pos;
+}
+
+unsigned int getPosInCol(struct Board *board, unsigned int val, unsigned int col)
+{
+	unsigned int row, pos;
+	pos = 0;
+	for(row = 0; row < 9; row++)
+	{
+		pos |= ((board->node[row][col] >> val) & 1) << (8 - row);
 	}
 	return pos;
 }
@@ -77,6 +116,31 @@ int maskBoxExceptRow(struct Board *board, int row, int box, unsigned int mask)
 	board->node[b][3*box] &= mask;
 	board->node[b][3*box + 1] &= mask;
 	board->node[b][3*box + 2] &= mask;
+	return 0;
+}
+
+int maskBoxExceptCol(struct Board *board, int col, int box, unsigned int mask)
+{
+	int a, b;
+	switch(col % 3) {
+		case 0:
+			a = col + 1;
+			b = col + 2;
+			break;
+		case 1:
+			a = col - 1;
+			b = col + 1;
+			break;
+		default:
+			a = col - 2;
+			b = col - 1;
+	}
+	board->node[3*box][a] &= mask;
+	board->node[3*box + 1][a] &= mask;
+	board->node[3*box + 2][a] &= mask;
+	board->node[3*box][b] &= mask;
+	board->node[3*box + 1][b] &= mask;
+	board->node[3*box + 2][b] &= mask;
 	return 0;
 }
 
@@ -107,7 +171,26 @@ int checkRows(struct Board *board)
 
 int checkCols(struct Board *board)
 {
-	(void) board;
+	unsigned int col, val, pos;
+	for(col = 0; col < 9; col++)
+	{
+		for(val = 0; val < 9; val++)
+		{
+			pos = getPosInCol(board, val, col);
+			if(!(pos & LEFTMASK))
+			{/*all allowed val in left box*/
+				maskBoxExceptCol(board, col, 0, ~(1 << val));
+			}
+			else if(!(pos & MIDMASK))
+			{/*all allowed val in middle box*/
+				maskBoxExceptCol(board, col, 1, ~(1 << val));
+			}
+			else if(!(pos & RIGHTMASK))
+			{/*all allowed val in right box*/
+				maskBoxExceptCol(board, col, 2, ~(1 << val));
+			}
+		}
+	}
 	return 0;
 }
 
