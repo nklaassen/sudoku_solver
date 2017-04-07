@@ -202,7 +202,15 @@ int checkBoxes(struct Board *board)
 
 int checkDone(struct Board *board)
 {
-	(void) board;
-	return 0;
+	int row, col;
+	for(row = 0; row < 9; row++)
+	{
+		for(col = 0; col < 9; col++)
+		{
+			if(1 != pop(board->node[row][col]))
+				return 0;
+		}
+	}
+	return 1;
 }
 
