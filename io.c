@@ -49,6 +49,9 @@ int printBoard(struct Board *board, FILE *stream)
 		{
 			getNode(board, &node, i, j);
 			fprintf(stream, "%d", node);
+			if(j != 8) {
+				fprintf(stream, ",");
+			}
 		}
 		fprintf(stream, "\n");
 	}
