@@ -5,7 +5,7 @@
 int setNode(struct Board *board, unsigned int node, int i, int j)
 {
 	if(0 == node) {
-		board->node[i][j] = 0;
+		board->node[i][j] = 0x1FF;
 	}
 	else {
 		board->node[i][j] = 1 << (node - 1);
