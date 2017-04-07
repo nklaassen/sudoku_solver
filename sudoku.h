@@ -8,8 +8,12 @@ struct Board
 
 int setNode(struct Board *board, unsigned int node, int i, int j);
 int getNode(struct Board *board, unsigned int *node, int i, int j);
-int maskNode(struct Board *board, int i, int j);
-int clearBoard(struct Board *board);
 int solve(struct Board *board);
+
+int checkRows(struct Board *board);
+int checkCols(struct Board *board);
+int checkBoxes(struct Board *board);
+int checkDone(struct Board *board);
+unsigned int getPosInRow(struct Board *board, unsigned int val, unsigned int row);
 
 #endif
