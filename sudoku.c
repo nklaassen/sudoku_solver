@@ -4,6 +4,7 @@
 #define LEFTMASK 0x3F
 #define MIDMASK 0x1C7
 #define RIGHTMASK 0x1F8
+#define MAXITERATIONS 100
 
 
 int setNode(struct Board *board, unsigned int node, int i, int j)
@@ -33,9 +34,6 @@ int getNode(struct Board *board, unsigned int *node, int i, int j)
 
 int solve(struct Board *board)
 {
-	printBoard(board, stdout);
-	printf("\n\n");
-
 	int i = 0;
 	do
 	{
@@ -43,18 +41,46 @@ int solve(struct Board *board)
 		checkRows(board);
 		checkCols(board);
 		checkBoxes(board);
-
-		printBoard(board, stdout);
-		printf("\n\n");
-
 		i++;
-	} while (!checkDone(board) && i < 10);
+	} while (!checkDone(board) && i < MAXITERATIONS);
 	return checkDone(board);
+}
+
+int otherRowsInBox(const int row, int *row1, int *row2)
+{
+		switch(row % 3) 
+		{
+			case 0:
+				*row1 = row + 1; *row2 = row + 2;
+				break;
+			case 1:
+				*row1 = row - 1; *row2 = row + 1;
+				break;
+			default:
+				*row1 = row - 2; *row2 = row - 1;
+		}
+		return 0;
+}
+
+int otherColsInBox(const int col, int *col1, int *col2)
+{
+		switch(col % 3) 
+		{
+			case 0:
+				*col1 = col + 1; *col2 = col + 2;
+				break;
+			case 1:
+				*col1 = col - 1; *col2 = col + 1;
+				break;
+			default:
+				*col1 = col - 2; *col2 = col - 1;
+		}
+		return 0;
 }
 
 int mask(struct Board *board)
 {
-	int row, col, i;
+	int row, col, i, row1, row2, col1, col2;
 	unsigned int mask;
 	for(row = 0; row < 9; row++)
 	{
@@ -66,14 +92,18 @@ int mask(struct Board *board)
 				for(i = 0; i < 9; i++)
 				{
 					if(i != row) {
-						board->node[i][col] &= ~board->node[row][col];
+						board->node[i][col] &= mask;
 					}
 					if(i != col) {
-						board->node[row][i] &= ~board->node[row][col];
+						board->node[row][i] &= mask;
 					}
 				}
-				maskBoxExceptRow(board, row, col / 3, mask);
-				maskBoxExceptCol(board, col, row / 3, mask);
+				otherRowsInBox(row, &row1, &row2);
+				otherColsInBox(col, &col1, &col2);
+				board->node[row1][col1] &= mask;
+				board->node[row1][col2] &= mask;
+				board->node[row2][col1] &= mask;
+				board->node[row2][col2] &= mask;
 			}
 		}
 	}
@@ -104,26 +134,14 @@ unsigned int getPosInCol(struct Board *board, unsigned int val, unsigned int col
 
 int maskBoxExceptRow(struct Board *board, int row, int box, unsigned int mask)
 {
-	int a, b;
-	switch(row % 3) {
-		case 0:
-			a = row + 1;
-			b = row + 2;
-			break;
-		case 1:
-			a = row - 1;
-			b = row + 1;
-			break;
-		default:
-			a = row - 2;
-			b = row - 1;
-	}
-	board->node[a][3*box] &= mask;
-	board->node[a][3*box + 1] &= mask;
-	board->node[a][3*box + 2] &= mask;
-	board->node[b][3*box] &= mask;
-	board->node[b][3*box + 1] &= mask;
-	board->node[b][3*box + 2] &= mask;
+	int row1, row2;
+	otherRowsInBox(row, &row1, &row2);
+	board->node[row1][3*box] &= mask;
+	board->node[row1][3*box + 1] &= mask;
+	board->node[row1][3*box + 2] &= mask;
+	board->node[row2][3*box] &= mask;
+	board->node[row2][3*box + 1] &= mask;
+	board->node[row2][3*box + 2] &= mask;
 	return 0;
 }
 

@@ -9,8 +9,12 @@ int main(int argc, char *argv[])
 
 	struct Board board;
 	parseInput(&board, stdin);
-	solve(&board);
-	//printBoard(&board, stdout);
+	if(solve(&board)) {
+		printBoard(&board, stdout);
+	}
+	else {
+		printf("Unable to solve");
+	}
 
 	return 0;
 }
