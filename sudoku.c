@@ -46,34 +46,18 @@ int solve(struct Board *board)
 	return checkDone(board);
 }
 
-int otherRowsInBox(const int row, int *row1, int *row2)
+int otherLinesInBox(const int line, int *line1, int *line2)
 {
-		switch(row % 3) 
+		switch(line % 3) 
 		{
 			case 0:
-				*row1 = row + 1; *row2 = row + 2;
+				*line1 = line + 1; *line2 = line + 2;
 				break;
 			case 1:
-				*row1 = row - 1; *row2 = row + 1;
+				*line1 = line - 1; *line2 = line + 1;
 				break;
 			default:
-				*row1 = row - 2; *row2 = row - 1;
-		}
-		return 0;
-}
-
-int otherColsInBox(const int col, int *col1, int *col2)
-{
-		switch(col % 3) 
-		{
-			case 0:
-				*col1 = col + 1; *col2 = col + 2;
-				break;
-			case 1:
-				*col1 = col - 1; *col2 = col + 1;
-				break;
-			default:
-				*col1 = col - 2; *col2 = col - 1;
+				*line1 = line - 2; *line2 = line - 1;
 		}
 		return 0;
 }
@@ -98,8 +82,8 @@ int mask(struct Board *board)
 						board->node[row][i] &= mask;
 					}
 				}
-				otherRowsInBox(row, &row1, &row2);
-				otherColsInBox(col, &col1, &col2);
+				otherLinesInBox(row, &row1, &row2);
+				otherLinesInBox(col, &col1, &col2);
 				board->node[row1][col1] &= mask;
 				board->node[row1][col2] &= mask;
 				board->node[row2][col1] &= mask;
@@ -135,7 +119,7 @@ unsigned int getPosInCol(struct Board *board, unsigned int val, unsigned int col
 int maskBoxExceptRow(struct Board *board, int row, int box, unsigned int mask)
 {
 	int row1, row2;
-	otherRowsInBox(row, &row1, &row2);
+	otherLinesInBox(row, &row1, &row2);
 	board->node[row1][3*box] &= mask;
 	board->node[row1][3*box + 1] &= mask;
 	board->node[row1][3*box + 2] &= mask;
