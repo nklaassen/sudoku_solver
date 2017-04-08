@@ -15,8 +15,8 @@ int checkRows(struct Board *board);
 int checkCols(struct Board *board);
 int checkBoxes(struct Board *board);
 int checkDone(struct Board *board);
-unsigned int getPosInRow(struct Board *board, unsigned int val, unsigned int row);
-unsigned int getPosInCol(struct Board *board, unsigned int val, unsigned int col);
+unsigned int getPosInRow(struct Board *board, int val, int row);
+unsigned int getPosInCol(struct Board *board, int val, int col);
 int maskBoxExceptRow(struct Board *board, int row, int box, unsigned int mask);
 int maskBoxExceptCol(struct Board *board, int col, int box, unsigned int mask);
 
