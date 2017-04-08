@@ -10,27 +10,27 @@
 #define MAXITERATIONS 10000
 
 
-int setNode(struct Board *board, unsigned int node, int i, int j)
+int setCell(struct Board *board, unsigned int cell, int i, int j)
 {
-	if(0 == node) {
-		board->node[i][j] = 0x1FF;
+	if(0 == cell) {
+		board->cell[i][j] = 0x1FF;
 	}
 	else {
-		board->node[i][j] = 1 << (node - 1);
+		board->cell[i][j] = 1 << (cell - 1);
 	}
 	return 0;
 }
 
-int getNode(struct Board *board, unsigned int *node, int i, int j)
+int getCell(struct Board *board, unsigned int *cell, int i, int j)
 {
 	unsigned int index;
-	index = board->node[i][j];
+	index = board->cell[i][j];
 	if(1 == pop(index)) {
-			*node = 1;
-			while(index >>= 1) (*node)++;		
+			*cell = 1;
+			while(index >>= 1) (*cell)++;		
 	}
 	else {
-		*node = 0;
+		*cell = 0;
 	}
 	return 0;
 }
@@ -74,24 +74,24 @@ int mask(struct Board *board)
 	{
 		for(col = 0; col < 9; col++)
 		{
-			if(1 == pop(board->node[row][col]))
+			if(1 == pop(board->cell[row][col]))
 			{
-				mask = ~(board->node[row][col]);
+				mask = ~(board->cell[row][col]);
 				for(i = 0; i < 9; i++)
 				{
 					if(i != row) {
-						board->node[i][col] &= mask;
+						board->cell[i][col] &= mask;
 					}
 					if(i != col) {
-						board->node[row][i] &= mask;
+						board->cell[row][i] &= mask;
 					}
 				}
 				otherLinesInBox(row, &row1, &row2);
 				otherLinesInBox(col, &col1, &col2);
-				board->node[row1][col1] &= mask;
-				board->node[row1][col2] &= mask;
-				board->node[row2][col1] &= mask;
-				board->node[row2][col2] &= mask;
+				board->cell[row1][col1] &= mask;
+				board->cell[row1][col2] &= mask;
+				board->cell[row2][col1] &= mask;
+				board->cell[row2][col2] &= mask;
 			}
 		}
 	}
@@ -101,12 +101,12 @@ int mask(struct Board *board)
 int recursiveMask(struct Board *board, int row, int col, unsigned int mask)
 {
 	int i, row1, col1, row2, col2;
-	if(1 != pop(board->node[row][col]))
+	if(1 != pop(board->cell[row][col]))
 	{
-		board->node[row][col] &= mask;
-		if(1 == pop(board->node[row][col]))
+		board->cell[row][col] &= mask;
+		if(1 == pop(board->cell[row][col]))
 		{
-			mask = ~(board->node[row][col]);
+			mask = ~(board->cell[row][col]);
 			for(i = 0; i < 9; i++)
 			{
 				if(i != row) {
@@ -133,7 +133,7 @@ unsigned int getPosInRow(struct Board *board, int val, int row)
 	pos = 0;
 	for(col = 0; col < 9; col++)
 	{
-		pos |= ((board->node[row][col] >> val) & 1) << (8 - col);
+		pos |= ((board->cell[row][col] >> val) & 1) << (8 - col);
 	}
 	return pos;
 }
@@ -145,7 +145,7 @@ unsigned int getPosInCol(struct Board *board, int val, int col)
 	pos = 0;
 	for(row = 0; row < 9; row++)
 	{
-		pos |= ((board->node[row][col] >> val) & 1) << (8 - row);
+		pos |= ((board->cell[row][col] >> val) & 1) << (8 - row);
 	}
 	return pos;
 }
@@ -159,7 +159,7 @@ unsigned int getPosInBox(struct Board *board, int val, int box)
 	{
 		row = (box / 3) + (i / 3);
 		col = (box % 3) + (i % 3);
-		pos |= ((board->node[row][col] >> val) & 1) << (8 - i);
+		pos |= ((board->cell[row][col] >> val) & 1) << (8 - i);
 	}
 	return pos;
 }
@@ -307,7 +307,7 @@ int checkDone(struct Board *board)
 	{
 		for(col = 0; col < 9; col++)
 		{
-			if(1 != pop(board->node[row][col]))
+			if(1 != pop(board->cell[row][col]))
 				return 0;
 		}
 	}

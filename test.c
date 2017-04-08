@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 	{
 		for(j = 0; j < 9; j++)
 		{
-			setNode(&board, j + 1, i, j);
+			setCell(&board, j + 1, i, j);
 		}
 	}
 
@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	setNode(&board, 9, 0, 7);
+	setCell(&board, 9, 0, 7);
 	if(getPosInRow(&board, 8, 0) != 3) {
 		printf("getPosInRow error");
 	}

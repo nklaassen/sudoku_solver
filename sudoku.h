@@ -3,11 +3,11 @@
 
 struct Board
 {
-	unsigned int node[9][9];
+	unsigned int cell[9][9];
 };
 
-int setNode(struct Board *board, unsigned int node, int i, int j);
-int getNode(struct Board *board, unsigned int *node, int i, int j);
+int setCell(struct Board *board, unsigned int cell, int i, int j);
+int getCell(struct Board *board, unsigned int *cell, int i, int j);
 int solve(struct Board *board);
 
 int mask(struct Board *board);
