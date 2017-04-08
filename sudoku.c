@@ -7,8 +7,6 @@
 #define FIRSTMASK 0xDB
 #define SECONDMASK 0x16D
 #define THIRDMASK 0x1B6
-#define MAXITERATIONS 10000
-
 
 int setCell(struct Board *board, unsigned int cell, int i, int j)
 {
@@ -37,15 +35,16 @@ int getCell(struct Board *board, unsigned int *cell, int i, int j)
 
 int solve(struct Board *board)
 {
-	int i = 0;
+	int i = 0, change;
 	mask(board);
 	do
 	{
-		checkRows(board);
-		checkCols(board);
-		checkBoxes(board);
+		change = 0;
+		change |= checkRows(board);
+		change |= checkCols(board);
+		change |= checkBoxes(board);
 		i++;
-	} while (!checkDone(board) && i < MAXITERATIONS);
+	} while (!checkDone(board) && change);
 	printf("Done in %d iterations\n", i);
 	return checkDone(board);
 }
@@ -100,12 +99,14 @@ int mask(struct Board *board)
 
 int recursiveMask(struct Board *board, int row, int col, unsigned int mask)
 {
-	int i, row1, col1, row2, col2;
+	int i, change, row1, col1, row2, col2;
+	change = 0;
 	if(1 != pop(board->cell[row][col]))
 	{
+		change = board->cell[row][col] & ~mask;/*return non-zero if change*/
 		board->cell[row][col] &= mask;
 		if(1 == pop(board->cell[row][col]))
-		{
+		{/*if cell is now decided, recurse on all affected cells*/
 			mask = ~(board->cell[row][col]);
 			for(i = 0; i < 9; i++)
 			{
@@ -124,7 +125,7 @@ int recursiveMask(struct Board *board, int row, int col, unsigned int mask)
 			recursiveMask(board, row2, col2, mask);
 		}
 	}
-	return 0;
+	return change;
 }
 
 unsigned int getPosInRow(struct Board *board, int val, int row)
@@ -166,55 +167,61 @@ unsigned int getPosInBox(struct Board *board, int val, int box)
 
 int maskBoxExceptRow(struct Board *board, int row, int box, unsigned int mask)
 {
-	int row1, row2, i;
+	int row1, row2, i, change;
+	change = 0;
 	otherLinesInBox(row, &row1, &row2);
 	for(i = 0; i < 3; i++)
 	{
-		recursiveMask(board, row1, 3*box + i, mask);
-		recursiveMask(board, row2, 3*box + i, mask);
+		change |= recursiveMask(board, row1, 3*box + i, mask);
+		change |= recursiveMask(board, row2, 3*box + i, mask);
 	}
-	return 0;
+	return change;
 }
 
 int maskBoxExceptCol(struct Board *board, int col, int box, unsigned int mask)
 {
-	int col1, col2, i;
+	int col1, col2, i, change;
+	change = 0;
 	otherLinesInBox(col, &col1, &col2);
 	for(i = 0; i < 3; i++)
 	{
-		recursiveMask(board, 3*box + i, col1, mask);
-		recursiveMask(board, 3*box + i, col2, mask);
+		change |= recursiveMask(board, 3*box + i, col1, mask);
+		change |= recursiveMask(board, 3*box + i, col2, mask);
 	}
-	return 0;
+	return change;
 }
 
 int maskRowExceptBox(struct Board *board, int box, int row, unsigned int mask)
 {
-	int col;
+	int col, change;
+	change = 0;
 	for(col = 0; col < 9; col++)
 	{
 		if((col / 3) != box) {
-			recursiveMask(board, row, col, mask);
+			change |= recursiveMask(board, row, col, mask);
 		}
 	}
-	return 0;
+	return change;
 }
 
 int maskColExceptBox(struct Board *board, int box, int col, unsigned int mask)
 {
-	int row;
+	int row, change;
+	change = 0;
 	for(row = 0; row < 9; row++)
 	{
 		if((row / 3) != box) {
-			recursiveMask(board, row, col, mask);
+			change |= recursiveMask(board, row, col, mask);
 		}
 	}
-	return 0;
+	return change;
 }
 
 int checkRows(struct Board *board)
 {
-	unsigned int row, val, pos;
+	int row, val, change;
+	unsigned int pos;
+	change = 0;
 	for(row = 0; row < 9; row++)
 	{
 		for(val = 0; val < 9; val++)
@@ -222,24 +229,26 @@ int checkRows(struct Board *board)
 			pos = getPosInRow(board, val, row);
 			if(!(pos & LEFTMASK))
 			{/*all allowed val in left box*/
-				maskBoxExceptRow(board, row, 0, ~(1 << val));
+				change |= maskBoxExceptRow(board, row, 0, ~(1 << val));
 			}
 			else if(!(pos & MIDMASK))
 			{/*all allowed val in middle box*/
-				maskBoxExceptRow(board, row, 1, ~(1 << val));
+				change |= maskBoxExceptRow(board, row, 1, ~(1 << val));
 			}
 			else if(!(pos & RIGHTMASK))
 			{/*all allowed val in right box*/
-				maskBoxExceptRow(board, row, 2, ~(1 << val));
+				change |= maskBoxExceptRow(board, row, 2, ~(1 << val));
 			}
 		}
 	}
-	return 0;
+	return change;
 }
 
 int checkCols(struct Board *board)
 {
-	unsigned int col, val, pos;
+	int col, val, change;
+	unsigned int pos;
+	change = 0;
 	for(col = 0; col < 9; col++)
 	{
 		for(val = 0; val < 9; val++)
@@ -247,25 +256,26 @@ int checkCols(struct Board *board)
 			pos = getPosInCol(board, val, col);
 			if(!(pos & LEFTMASK))
 			{/*all allowed val in left box*/
-				maskBoxExceptCol(board, col, 0, ~(1 << val));
+				change |= maskBoxExceptCol(board, col, 0, ~(1 << val));
 			}
 			else if(!(pos & MIDMASK))
 			{/*all allowed val in middle box*/
-				maskBoxExceptCol(board, col, 1, ~(1 << val));
+				change |= maskBoxExceptCol(board, col, 1, ~(1 << val));
 			}
 			else if(!(pos & RIGHTMASK))
 			{/*all allowed val in right box*/
-				maskBoxExceptCol(board, col, 2, ~(1 << val));
+				change |= maskBoxExceptCol(board, col, 2, ~(1 << val));
 			}
 		}
 	}
-	return 0;
+	return change;
 }
 
 int checkBoxes(struct Board *board)
 {
-	int box, val;
+	int box, val, change;
 	unsigned int pos;
+	change = 0;
 	for(box = 0; box < 9; box++)
 	{
 		for(val = 0; val < 9; val++)
@@ -273,31 +283,31 @@ int checkBoxes(struct Board *board)
 			pos = getPosInBox(board, val, box);
 			if(!(pos & LEFTMASK))
 			{/*all allowed val in first row*/
-				maskRowExceptBox(board, box, (box / 3) + 0, ~(1 << val));
+				change |= maskRowExceptBox(board, box, (box / 3) + 0, ~(1 << val));
 			}
 			else if(!(pos & MIDMASK))
 			{/*all allowed val in middle row*/
-				maskRowExceptBox(board, box, (box / 3) + 1, ~(1 << val));
+				change |= maskRowExceptBox(board, box, (box / 3) + 1, ~(1 << val));
 			}
 			else if(!(pos & RIGHTMASK))
 			{/*all allowed val in bottom row*/
-				maskRowExceptBox(board, box, (box / 3) + 2, ~(1 << val));
+				change |= maskRowExceptBox(board, box, (box / 3) + 2, ~(1 << val));
 			}
 			if(!(pos & FIRSTMASK))
 			{/*all allowed val in first column*/
-				maskColExceptBox(board, box, (box % 3) + 0, ~(1 << val));
+				change |= maskColExceptBox(board, box, (box % 3) + 0, ~(1 << val));
 			}
 			else if(!(pos & SECONDMASK))
 			{/*all allowed val in second column*/
-				maskColExceptBox(board, box, (box % 3) + 1, ~(1 << val));
+				change |= maskColExceptBox(board, box, (box % 3) + 1, ~(1 << val));
 			}
 			else if(!(pos & THIRDMASK))
 			{/*all allowed val in third column*/
-				maskColExceptBox(board, box, (box % 3) + 2, ~(1 << val));
+				change |= maskColExceptBox(board, box, (box % 3) + 2, ~(1 << val));
 			}
 		}
 	}
-	return 0;
+	return change;
 }
 
 int checkDone(struct Board *board)
