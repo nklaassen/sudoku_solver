@@ -10,13 +10,12 @@
 
 int solve(struct Board *board)
 {
-	int i = 0, change;
+	int change = 1, done;
 	printBoard(board, stdout);
+	printf("\n\n\n");
 	printf("masking\n");
 	mask(board);
-	checkDone(board);
-	printBoard(board, stdout);
-	do
+	while(!(done = checkDone(board)) && change)
 	{
 		change = 0;
 		printf("checking rows\n");
@@ -25,16 +24,15 @@ int solve(struct Board *board)
 		change |= checkCols(board);
 		printf("checking boxes\n");
 		change |= checkBoxes(board);
-		i++;
-	} while (change);
-	return checkDone(board);
+	}
+	return done;
 }
 
 int recursiveSolve(struct Board *board)
 {
 	struct Board copy;
 	int row, col;
-	unsigned int temp;
+	unsigned int mask;
 	while(1)
 	{/*loop on all possible guesses until one works*/
 		switch(solve(board))
@@ -50,8 +48,9 @@ int recursiveSolve(struct Board *board)
 		memcpy(&copy, board, sizeof(struct Board));
 		/*make a guess*/
 		getFirstUndecided(board, &row, &col);
-		temp = board->cell[row][col] = guess(board->cell[row][col]);
-		printf("guessing at row %d and col %d", row, col);
+		mask = guess(board->cell[row][col]);
+		recursiveMask(board, row, col, mask);
+		printf("guessing at row %d and col %d\n", row, col);
 		if(recursiveSolve(board))
 		{/*guess was right, return*/
 			return 1;
@@ -59,7 +58,7 @@ int recursiveSolve(struct Board *board)
 		else
 		{/*guess was wrong, mask it out and continue*/
 			memcpy(board, &copy, sizeof(struct Board));
-			board->cell[row][col] &= ~temp;
+			recursiveMask(board, row, col, ~mask);
 		}
 	}
 	return 1;
@@ -409,7 +408,7 @@ int getFirstUndecided(struct Board *board, int *row, int *col)
 	{
 		for((*col) = 0; (*col) < 9; (*col)++)
 		{
-			if(board->cell[(*row)][(*col)] != 1) {
+			if(pop(board->cell[(*row)][(*col)]) != 1) {
 				return 1;
 			}
 		}
