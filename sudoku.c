@@ -11,28 +11,22 @@
 int solve(struct Board *board)
 {
 	int change = 1, done;
-	printBoard(board, stdout);
-	printf("\n\n\n");
-	printf("masking\n");
-	mask(board);
 	while(!(done = checkDone(board)) && change)
 	{
 		change = 0;
-		printf("checking rows\n");
 		change |= checkRows(board);
-		printf("checking columns\n");
 		change |= checkCols(board);
-		printf("checking boxes\n");
 		change |= checkBoxes(board);
 	}
 	return done;
 }
 
-int recursiveSolve(struct Board *board)
+int recursiveSolve(struct Board *board, int depth)
 {
 	struct Board copy;
 	int row, col;
 	unsigned int mask;
+	/*printf("depth: %d\n", depth);*/
 	while(1)
 	{/*loop on all possible guesses until one works*/
 		switch(solve(board))
@@ -43,15 +37,13 @@ int recursiveSolve(struct Board *board)
 				return 1;
 		}
 		/*unable to solve by traditional means...*/
-		printf("making a guess\n");
 		/*make a copy of the board to revert to if guess is wrong*/
 		memcpy(&copy, board, sizeof(struct Board));
 		/*make a guess*/
 		getFirstUndecided(board, &row, &col);
 		mask = guess(board->cell[row][col]);
 		recursiveMask(board, row, col, mask);
-		printf("guessing at row %d and col %d\n", row, col);
-		if(recursiveSolve(board))
+		if(recursiveSolve(board, depth + 1))
 		{/*guess was right, return*/
 			return 1;
 		}
@@ -195,25 +187,18 @@ int checkDone(struct Board *board)
 		{
 			val = board->cell[row][col];
 			if(rows[row] & val) {
-				printf("error at row %d col %d\n", row, col);
-				printf("mask is %x, should not contain %x\n", val, rows[row] & val);
 				return -1;
 			}
 			if(cols[col] & val) {
-				printf("error at row %d col %d\n", row, col);
-				printf("mask is %x, should not contain %x\n", val, cols[col] & val);
 				return -1;
 			}
 			if(boxes[3 * (row / 3) + (col / 3)] & val) {
 				getCell(board, &cell, row, col);
-				printf("error at row %d col %d\n", row, col);
-				printf("too many %d in box %d\n", cell, 3 * (row / 3) + (col / 3));
 				return -1;
 			}
 			switch(pop(board->cell[row][col]))
 			{
 				case 0:
-					printf("no allowed values for cell %d,%d\n", row, col);
 					return -1;
 				case 1:
 					rows[row] |= val;
@@ -228,7 +213,7 @@ int checkDone(struct Board *board)
 	return done;
 }
 
-int mask(struct Board *board)
+int init(struct Board *board)
 {
 	int row, col, i, row1, row2, col1, col2;
 	unsigned int mask;
@@ -271,10 +256,6 @@ int recursiveMask(struct Board *board, int row, int col, unsigned int mask)
 		board->cell[row][col] &= mask;
 		if(pop(board->cell[row][col]) == 1)
 		{/*if cell is now decided, recurse on all affected cells*/
-			
-			printBoard(board, stdout);
-			printf("\n\n\n");
-
 			mask = ~(board->cell[row][col]);
 			for(i = 0; i < 9; i++)
 			{/*mask row and column*/

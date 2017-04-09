@@ -1,7 +1,7 @@
 SRC=$(wildcard *.c)
 HEADERS=$(wildcard *.h)
 OBJS=$(SRC:.c=.o)
-TARGET=sudoku.out
+TARGET=sudoku
 CC=gcc
 CFLAGS=-Wextra -Wall -Wshadow
 
@@ -16,4 +16,4 @@ $(TARGET): $(OBJS) $(TARGET_OBJ)
 fresh: clean all
 
 clean:
-	rm -fv *.o *.out
+	rm -fv *.o $(TARGET)

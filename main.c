@@ -1,20 +1,27 @@
 #include <stdio.h>
+#include <errno.h>
 #include "io.h"
 #include "sudoku.h"
 
 int main(int argc, char *argv[])
 {
-	(void) argc;
-	(void) argv;
-
+	FILE *stream;
 	struct Board board;
-	parseInput(&board, stdin);
-	if(recursiveSolve(&board) == 1) {
-		printf("Solved\n");
+
+	if(argc > 1) {
+		stream = fopen(argv[1], "r");
+		if(stream == NULL) {
+			perror("fopen");
+			return -1;
+		}
 	}
 	else {
-		printf("Failed\n");
+		stream = stdin;
 	}
+
+	parseInput(&board, stream);
+	init(&board);
+	recursiveSolve(&board, 1);
 	printBoard(&board, stdout);
 
 	return 0;

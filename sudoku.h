@@ -9,7 +9,7 @@ struct Board
 };
 
 int solve(struct Board *board);
-int recursiveSolve(struct Board *board);
+int recursiveSolve(struct Board *board, int depth);
 int setCell(struct Board *board, unsigned int cell, int i, int j);
 int getCell(struct Board *board, unsigned int *cell, int i, int j);
 
@@ -17,7 +17,7 @@ int checkRows(struct Board *board);
 int checkCols(struct Board *board);
 int checkBoxes(struct Board *board);
 int checkDone(struct Board *board);
-int mask(struct Board *board);
+int init(struct Board *board);
 int recursiveMask(struct Board *board, int row, int col, unsigned int mask);
 int maskBoxExceptRow(struct Board *board, int row, int box, unsigned int mask);
 int maskBoxExceptCol(struct Board *board, int col, int box, unsigned int mask);
