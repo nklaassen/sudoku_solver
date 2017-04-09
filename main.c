@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
 
 	struct Board board;
 	parseInput(&board, stdin);
-	if(solve(&board) == 1) {
+	if(recursiveSolve(&board) == 1) {
 		printf("Solved\n");
 	}
 	else {
