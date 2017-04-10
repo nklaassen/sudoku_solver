@@ -26,7 +26,7 @@ int recursiveSolve(struct Board *board, int depth)
 	struct Board copy;
 	int row, col;
 	unsigned int mask;
-	/*printf("depth: %d\n", depth);*/
+	//printf("depth: %d\n", depth);
 	while(1)
 	{/*loop on all possible guesses until one works*/
 		switch(solve(board))

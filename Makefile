@@ -3,7 +3,7 @@ HEADERS=$(wildcard *.h)
 OBJS=$(SRC:.c=.o)
 TARGET=sudoku
 CC=gcc
-CFLAGS=-Wextra -Wall -Wshadow
+CFLAGS=-Wextra -Wall -Wshadow -O9
 
 all: $(TARGET)
 
