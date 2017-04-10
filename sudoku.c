@@ -40,8 +40,7 @@ int recursiveSolve(struct Board *board, int depth)
 		/*make a copy of the board to revert to if guess is wrong*/
 		memcpy(&copy, board, sizeof(struct Board));
 		/*make a guess*/
-		getFirstUndecided(board, &row, &col);
-		mask = guess(board->cell[row][col]);
+		mask = getBestGuess(board, &row, &col);
 		recursiveMask(board, row, col, mask);
 		if(recursiveSolve(board, depth + 1))
 		{/*guess was right, return*/
@@ -383,24 +382,25 @@ int otherLinesInBox(const int line, int *line1, int *line2)
 		return 0;
 }
 
-int getFirstUndecided(struct Board *board, int *row, int *col)
+unsigned int getBestGuess(struct Board *board, int *row, int *col)
 {
-	for((*row) = 0; (*row) < 9; (*row)++)
+	int popc, minRow, minCol, min = 10;
+	unsigned int guess = 1;
+	for((*row) = 0; min > 2 && (*row) < 9; (*row)++)
 	{
-		for((*col) = 0; (*col) < 9; (*col)++)
+		for((*col) = 0; min > 2 && (*col) < 9; (*col)++)
 		{
-			if(pop(board->cell[(*row)][(*col)]) != 1) {
-				return 1;
+			popc = pop(board->cell[*row][*col]);
+			if(popc > 1 && popc < min) {
+				min = popc;
+				minRow = *row;
+				minCol = *col;
 			}
 		}
 	}
-	return 0;
-}
-
-unsigned int guess(unsigned int val)
-{
-	unsigned int guess = 1;
-	while(!(guess & val)) {
+	*row = minRow;
+	*col = minCol;
+	while(!(guess & board->cell[minRow][minCol])) {
 		guess <<= 1;
 	}
 	return guess;

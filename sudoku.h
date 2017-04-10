@@ -27,8 +27,9 @@ unsigned int getPosInRow(struct Board *board, int val, int row);
 unsigned int getPosInCol(struct Board *board, int val, int col);
 unsigned int getPosInBox(struct Board *board, int val, int box);
 int otherLinesInBox(const int line, int *line1, int *line2);
-int getFirstUndecided(struct Board *board, int *row, int *col);
-unsigned int guess(unsigned int val);
+unsigned int getBestGuess(struct Board *board, int *row, int *col);
+//int getFirstUndecided(struct Board *board, int *row, int *col);
+//unsigned int guess(unsigned int val);
 
 #include "io.h"
 
