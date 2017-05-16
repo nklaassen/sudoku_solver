@@ -384,7 +384,7 @@ int otherLinesInBox(const int line, int *line1, int *line2)
 
 unsigned int getBestGuess(struct Board *board, int *row, int *col)
 {
-	int popc, minRow, minCol, min = 10;
+	int popc, minRow = 0, minCol = 0, min = 10;
 	unsigned int guess = 1;
 	for((*row) = 0; min > 2 && (*row) < 9; (*row)++)
 	{
