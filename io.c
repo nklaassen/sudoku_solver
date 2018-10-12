@@ -3,10 +3,10 @@
 int parseInput(struct Board *board, FILE *stream)
 {
 	int i, j;
-	char *buf, *cellstr;
-	long cell;
-	size_t size;
-	ssize_t numChars;
+	char *buf = NULL, *cellstr = NULL;
+	long cell = 0;
+	size_t size = 0;
+	ssize_t numChars = 0;
 	for(i = 0; i < 9; i++)
 	{
 		numChars = getline(&buf, &size, stream);

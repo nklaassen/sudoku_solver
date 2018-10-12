@@ -35,5 +35,6 @@ int main(int argc, char *argv[])
 	printBoard(&board, stdout);
 	printf("Time: %lld us\n", timespecDiff(&stop, &start) / 1000);
 
+	fclose(stream);
 	return 0;
 }
